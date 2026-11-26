@@ -362,3 +362,28 @@ fn transfer_admin_without_new_admin_auth_fails() {
     assert!(res.is_err());
     assert_eq!(client.admin(), admin);
 }
+
+#[test]
+fn execute_upgrade_without_proposal_fails() {
+    let (_env, _admin, client) = setup();
+    let res = client.try_execute_upgrade();
+    assert_eq!(res, Err(Ok(RegistryError::UpgradeNotProposed.into())));
+}
+
+#[test]
+fn cancel_upgrade_without_proposal_fails() {
+    let (_env, _admin, client) = setup();
+    let res = client.try_cancel_upgrade();
+    assert_eq!(res, Err(Ok(RegistryError::UpgradeNotProposed.into())));
+}
+
+#[test]
+fn execute_upgrade_before_delay_fails() {
+    let (env, _admin, client) = setup();
+    let hash = BytesN::from_array(&env, &[7; 32]);
+    client.propose_upgrade(&hash);
+
+    // A proposal is executable only once UPGRADE_DELAY_LEDGERS have closed.
+    let res = client.try_execute_upgrade();
+    assert_eq!(res, Err(Ok(RegistryError::UpgradeDelayNotElapsed.into())));
+}

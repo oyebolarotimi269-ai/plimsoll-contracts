@@ -48,6 +48,24 @@ So a variant's number is fixed for good once it ships:
 end-to-end test in [tests/e2e](../tests/e2e/tests/scenario.rs) asserts several
 codes as literal numbers, so a renumbering fails CI.
 
+### Every code has a test
+
+`cargo test` covers behaviour; a second check covers the list itself.
+[`scripts/check_error_coverage.py`](../scripts/check_error_coverage.py) (the
+**Error-code coverage** step in CI, or `python3
+scripts/check_error_coverage.py` locally) reads every `#[contracterror]` enum
+under `contracts/` and `examples/` and fails if some variant is named by no
+test file in its package. It prints a per-enum covered count and every
+uncovered `Type::Variant` with its number, so the failing output is the to-do
+list. It also fails on a duplicate error number in one enum, because the
+number is what the indexer decodes.
+
+A code that genuinely cannot be reached from a test is listed with its reason
+in `INTENTIONALLY_UNTESTED` at the top of that script. The check fails when a
+listed entry has gone stale (the variant is gone, or a test now covers it), so
+the list cannot be used to paper over a missing test. There are no such
+entries today: every code below is covered.
+
 ## Quick lookup
 
 | N | reporter-registry | coverage-ledger | covered-vault |
