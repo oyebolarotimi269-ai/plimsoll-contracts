@@ -4,7 +4,8 @@ use super::*;
 #[allow(unused_imports)]
 use soroban_sdk::{
     testutils::{Address as _, Events as _, Ledger as _, MockAuth, MockAuthInvoke},
-    Address, Bytes, BytesN, Env, IntoVal, String, Symbol,
+    xdr::ContractEventBody,
+    Address, Bytes, BytesN, Env, IntoVal, Map, String, Symbol, TryFromVal, Val,
 };
 
 #[allow(dead_code)]
