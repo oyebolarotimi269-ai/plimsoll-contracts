@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/plimsoll-protocol/plimsoll-contracts/actions/workflows/ci.yml"><img src="https://github.com/plimsoll-protocol/plimsoll-contracts/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <img src="https://img.shields.io/badge/soroban--sdk-28.0.0-0f1d2b" alt="soroban-sdk 28" />
+  <img src="https://img.shields.io/badge/soroban--sdk-29.0.1-0f1d2b" alt="soroban-sdk 29.0.1" />
   <img src="https://img.shields.io/badge/network-testnet-c8341f" alt="testnet" />
   <a href="https://plimsoll-protocol.gitbook.io/plimsoll-protocol-docs/"><img src="https://img.shields.io/badge/docs-gitbook-0f1d2b" alt="Docs" /></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="Apache-2.0" />
@@ -69,7 +69,9 @@ The full function-by-function specification is in [docs/SPEC.md](docs/SPEC.md),
 and the event topic and data layouts every off-chain reader depends on are in
 [docs/EVENTS.md](docs/EVENTS.md). What each error code means, from
 `Error(Contract, #1)` up, and what a caller should do about it is in
-[docs/ERRORS.md](docs/ERRORS.md).
+[docs/ERRORS.md](docs/ERRORS.md). Which SDK, Stellar CLI and network protocol a
+contract wasm needs, and how those pins are upgraded, is in
+[docs/compatibility.md](docs/compatibility.md).
 
 What each actor (admins, supply poster, reporters, issuers, anyone) can make
 the ledger say, what limits them and what an integrator should do about it is
