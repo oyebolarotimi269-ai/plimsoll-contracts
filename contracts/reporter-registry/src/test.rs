@@ -379,6 +379,78 @@ fn cancel_upgrade_without_proposal_fails() {
 }
 
 #[test]
+fn top_up_stake_accumulates_and_is_readable() {
+    let (env, _admin, client) = setup();
+    let who = Address::generate(&env);
+    client.set_reporter(&who, &Role::Auditor, &String::from_str(&env, "Acme"));
+
+    assert_eq!(client.stake_of(&who), 0);
+    assert_eq!(client.top_up_stake(&who, &1_000), 1_000);
+    assert_eq!(client.top_up_stake(&who, &500), 1_500);
+    assert_eq!(client.stake_of(&who), 1_500);
+}
+
+#[test]
+fn top_up_stake_with_non_positive_amount_fails() {
+    let (env, _admin, client) = setup();
+    let who = Address::generate(&env);
+    client.set_reporter(&who, &Role::Auditor, &String::from_str(&env, "Acme"));
+
+    let res = client.try_top_up_stake(&who, &0);
+    assert_eq!(res, Err(Ok(RegistryError::InvalidStakeAmount.into())));
+    assert_eq!(client.stake_of(&who), 0);
+}
+
+#[test]
+fn top_up_stake_past_i128_max_fails() {
+    let (env, _admin, client) = setup();
+    let who = Address::generate(&env);
+    client.set_reporter(&who, &Role::Auditor, &String::from_str(&env, "Acme"));
+    client.top_up_stake(&who, &i128::MAX);
+
+    let res = client.try_top_up_stake(&who, &1);
+    assert_eq!(res, Err(Ok(RegistryError::InvalidStakeAmount.into())));
+    assert_eq!(client.stake_of(&who), i128::MAX);
+}
+
+#[test]
+fn reduce_stake_lowers_and_clears_the_balance() {
+    let (env, _admin, client) = setup();
+    let who = Address::generate(&env);
+    client.set_reporter(&who, &Role::Auditor, &String::from_str(&env, "Acme"));
+    client.top_up_stake(&who, &1_000);
+
+    assert_eq!(client.reduce_stake(&who, &400), 600);
+    assert_eq!(client.stake_of(&who), 600);
+    assert_eq!(client.reduce_stake(&who, &600), 0);
+    assert_eq!(client.stake_of(&who), 0);
+}
+
+#[test]
+fn reduce_stake_with_non_positive_amount_fails() {
+    let (env, _admin, client) = setup();
+    let who = Address::generate(&env);
+    client.set_reporter(&who, &Role::Auditor, &String::from_str(&env, "Acme"));
+    client.top_up_stake(&who, &500);
+
+    let res = client.try_reduce_stake(&who, &0);
+    assert_eq!(res, Err(Ok(RegistryError::InvalidStakeAmount.into())));
+    assert_eq!(client.stake_of(&who), 500);
+}
+
+#[test]
+fn reduce_stake_above_the_tracked_balance_fails() {
+    let (env, _admin, client) = setup();
+    let who = Address::generate(&env);
+    client.set_reporter(&who, &Role::Auditor, &String::from_str(&env, "Acme"));
+    client.top_up_stake(&who, &250);
+
+    let res = client.try_reduce_stake(&who, &251);
+    assert_eq!(res, Err(Ok(RegistryError::InsufficientStake.into())));
+    assert_eq!(client.stake_of(&who), 250);
+}
+
+#[test]
 fn execute_upgrade_before_delay_fails() {
     let (env, _admin, client) = setup();
     let hash = BytesN::from_array(&env, &[7; 32]);
